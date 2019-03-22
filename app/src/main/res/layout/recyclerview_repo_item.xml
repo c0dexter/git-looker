@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/item_fav_article_root_frame_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/item_fav_article_card_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        card_view:cardCornerRadius="3dp"
+        card_view:cardElevation="@dimen/cardview_default_elevation"
+        card_view:cardUseCompatPadding="true">
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:id="@+id/item_fav_article_main_linear_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:baselineAligned="false">
+
+            <FrameLayout
+                android:id="@+id/frame_article_image"
+                android:layout_width="0dp"
+                android:layout_height="120dp"
+                android:layout_weight="0.9">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/image_view_user_avatar"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:adjustViewBounds="true"
+                    android:contentDescription="@string/desc_avatar_github_user"
+                    android:scaleType="centerCrop"
+                    android:transitionName="articleEntity main thumbnail"
+                    tools:src="@drawable/img_demo_avatar" />
+
+                <androidx.core.widget.ContentLoadingProgressBar
+                    android:id="@+id/progress_bar_avatar"
+                    style="?android:attr/progressBarStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical|center_horizontal"
+                    android:visibility="visible" />
+
+            </FrameLayout>
+
+
+            <FrameLayout
+                android:id="@+id/item_fav_article_frame_layout_article_info"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="2">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/item_fav_article_constraint_layout_article_info"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/text_view_github_repo_name"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="24dp"
+                        android:ellipsize="end"
+                        android:fontFamily="sans-serif-condensed"
+                        android:lines="1"
+                        android:textSize="30sp"
+                        android:textStyle="bold"
+                        card_view:layout_constraintBottom_toTopOf="@+id/guideline_horizontal_2"
+                        card_view:layout_constraintEnd_toEndOf="parent"
+                        card_view:layout_constraintStart_toStartOf="parent"
+                        card_view:layout_constraintTop_toTopOf="parent"
+                        tools:text="Jellyfish" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/text_view_github_user_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:ellipsize="end"
+                        android:fontFamily="sans-serif-condensed"
+                        android:maxLines="1"
+                        android:singleLine="true"
+                        android:textSize="18sp"
+                        android:textStyle="normal|bold"
+                        android:visibility="gone"
+                        card_view:layout_constraintBottom_toTopOf="@+id/guideline_horizontal"
+                        card_view:layout_constraintEnd_toStartOf="@+id/text_view_github_user_score_counter"
+                        card_view:layout_constraintHorizontal_bias="0.51"
+                        card_view:layout_constraintStart_toStartOf="parent"
+                        card_view:layout_constraintTop_toBottomOf="@+id/text_view_github_repo_name"
+                        tools:text="c0dexter"
+                        tools:visibility="visible" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/text_view_github_user_score_counter"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:ellipsize="end"
+                        android:fontFamily="sans-serif-condensed"
+                        android:maxLines="1"
+                        android:singleLine="true"
+                        android:textStyle="normal"
+                        android:visibility="visible"
+                        card_view:layout_constraintBaseline_toBaselineOf="@+id/text_view_github_user_name"
+                        card_view:layout_constraintEnd_toStartOf="@+id/guideline_vertical"
+                        card_view:layout_constraintStart_toEndOf="@+id/text_view_github_user_name"
+                        tools:text=" • 23475 points"
+                        tools:visibility="visible" />
+
+                    <FrameLayout
+                        android:id="@+id/frame_article_date"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:background="@drawable/shape_rounded_rectangle_white"
+                        android:padding="5dp"
+                        card_view:layout_constraintBottom_toTopOf="@+id/guideline_horizontal"
+                        card_view:layout_constraintEnd_toEndOf="parent"
+                        card_view:layout_constraintStart_toStartOf="@+id/guideline_vertical"
+                        card_view:layout_constraintTop_toTopOf="@+id/text_view_github_user_score_counter"
+                        tools:visibility="visible">
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/text_view_programing_language_type"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingStart="4dp"
+                            android:paddingEnd="4dp"
+                            android:textAlignment="gravity"
+                            android:textColor="@color/cardview_light_background"
+                            android:textSize="12sp"
+                            android:textStyle="bold|italic"
+                            tools:text="Ruby on Rails" />
+                    </FrameLayout>
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/guideline_vertical"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        card_view:layout_constraintGuide_begin="188dp" />
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/image_view_github_star_icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="24dp"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginBottom="16dp"
+                        card_view:layout_constraintBottom_toBottomOf="parent"
+                        card_view:layout_constraintEnd_toStartOf="@+id/text_view_github_star_counter"
+                        card_view:layout_constraintHorizontal_bias="0.0"
+                        card_view:layout_constraintStart_toStartOf="parent"
+                        card_view:layout_constraintTop_toTopOf="@+id/guideline_horizontal"
+                        card_view:srcCompat="@drawable/ic_star_black_24dp"
+                        android:contentDescription="@string/github_star_icon" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/text_view_github_star_counter"
+                        android:layout_width="0dp"
+                        android:layout_height="18dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="16dp"
+                        card_view:layout_constraintBottom_toBottomOf="parent"
+                        card_view:layout_constraintEnd_toStartOf="@+id/image_view_github_observer_icon"
+                        card_view:layout_constraintHorizontal_bias="0.5"
+                        card_view:layout_constraintStart_toEndOf="@+id/image_view_github_star_icon"
+                        card_view:layout_constraintTop_toTopOf="@+id/guideline_horizontal"
+                        tools:text="1" />
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/image_view_github_observer_icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:contentDescription="@string/github_observer_icon"
+                        android:layout_marginBottom="16dp"
+                        card_view:layout_constraintBottom_toBottomOf="parent"
+                        card_view:layout_constraintEnd_toStartOf="@+id/text_view_github_observer_counter"
+                        card_view:layout_constraintHorizontal_bias="0.5"
+                        card_view:layout_constraintStart_toEndOf="@+id/text_view_github_star_counter"
+                        card_view:layout_constraintTop_toTopOf="@+id/guideline_horizontal"
+                        card_view:srcCompat="@drawable/ic_watcher_black_24dp" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/text_view_github_observer_counter"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        card_view:layout_constraintBaseline_toBaselineOf="@+id/text_view_github_star_counter"
+                        card_view:layout_constraintEnd_toStartOf="@+id/image_view_github_fork_icon"
+                        card_view:layout_constraintHorizontal_bias="0.5"
+                        card_view:layout_constraintStart_toEndOf="@+id/image_view_github_observer_icon"
+                        tools:text="12" />
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/image_view_github_fork_icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginBottom="16dp"
+                        android:contentDescription="@string/github_fork_icon"
+                        card_view:layout_constraintBottom_toBottomOf="parent"
+                        card_view:layout_constraintEnd_toStartOf="@+id/text_view_github_fork_counter"
+                        card_view:layout_constraintHorizontal_bias="0.5"
+                        card_view:layout_constraintStart_toEndOf="@+id/text_view_github_observer_counter"
+                        card_view:layout_constraintTop_toTopOf="@+id/guideline_horizontal"
+                        card_view:srcCompat="@drawable/ic_fork_black_24dp" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/text_view_github_fork_counter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="16dp"
+                        card_view:layout_constraintBaseline_toBaselineOf="@+id/text_view_github_observer_counter"
+                        card_view:layout_constraintEnd_toEndOf="parent"
+                        card_view:layout_constraintHorizontal_bias="0.5"
+                        card_view:layout_constraintStart_toEndOf="@+id/image_view_github_fork_icon"
+                        tools:text="9" />
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/guideline_horizontal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        card_view:layout_constraintGuide_begin="85dp" />
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/guideline_horizontal_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        card_view:layout_constraintGuide_begin="58dp" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </FrameLayout>
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
+    </androidx.cardview.widget.CardView>
+
+</FrameLayout>

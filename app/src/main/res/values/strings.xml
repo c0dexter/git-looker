@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">GitLooker</string>
+    <string name="programming_language_type">Programming language type</string>
+    <string name="desc_avatar_github_user">Avatar of GitHub user</string>
+    <string name="github_star_icon">GitHub star icon</string>
+    <string name="github_observer_icon">GitHub observer icon</string>
+    <string name="github_fork_icon">GitHub fork icon</string>
 </resources>
