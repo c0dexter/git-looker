@@ -24,14 +24,15 @@ import pl.c0dexter.gitlooker.api.models.GitRepo;
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
 
     private final String TAG = this.getClass().getSimpleName();
-
     private final OnItemClickListener onItemClickListener;
     private List<GitRepo> repositoriesList = new ArrayList<>();
+
 
     public RecyclerAdapter(List<GitRepo> repositoriesList, OnItemClickListener onItemClickListener) {
         this.repositoriesList = repositoriesList;
         this.onItemClickListener = onItemClickListener;
     }
+
 
     @NonNull
     @Override
@@ -102,9 +103,11 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
         return repositoriesList.size();
     }
 
+
     public interface OnItemClickListener {
         void onItemClick(View view, int position);
     }
+
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         @BindView(R.id.image_view_user_avatar)
