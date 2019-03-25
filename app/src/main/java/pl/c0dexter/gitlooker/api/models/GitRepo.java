@@ -1,11 +1,11 @@
-package pl.c0dexter.gitlooker.models;
+package pl.c0dexter.gitlooker.api.models;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.google.gson.annotations.SerializedName;
 
-public class RepositoryItem implements Parcelable {
+public class GitRepo implements Parcelable {
     @SerializedName("id")
     private Integer id;
     @SerializedName("node_id")
@@ -153,24 +153,24 @@ public class RepositoryItem implements Parcelable {
     @SerializedName("score")
 
     private Double score;
-    public final static Parcelable.Creator<RepositoryItem> CREATOR = new Creator<RepositoryItem>() {
+    public final static Parcelable.Creator<GitRepo> CREATOR = new Creator<GitRepo>() {
 
 
         @SuppressWarnings({
                 "unchecked"
         })
-        public RepositoryItem createFromParcel(Parcel in) {
-            return new RepositoryItem(in);
+        public GitRepo createFromParcel(Parcel in) {
+            return new GitRepo(in);
         }
 
-        public RepositoryItem[] newArray(int size) {
-            return (new RepositoryItem[size]);
+        public GitRepo[] newArray(int size) {
+            return (new GitRepo[size]);
         }
 
     };
 
 
-    protected RepositoryItem(Parcel in) {
+    protected GitRepo(Parcel in) {
         this.id = ((Integer) in.readValue((Integer.class.getClassLoader())));
         this.nodeId = ((String) in.readValue((String.class.getClassLoader())));
         this.name = ((String) in.readValue((String.class.getClassLoader())));
@@ -245,7 +245,7 @@ public class RepositoryItem implements Parcelable {
         this.defaultBranch = ((String) in.readValue((String.class.getClassLoader())));
     }
 
-    public RepositoryItem() {
+    public GitRepo() {
     }
 
     public Integer getId() {

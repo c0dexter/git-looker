@@ -1,4 +1,4 @@
-package pl.c0dexter.gitlooker.models;
+package pl.c0dexter.gitlooker.api.models;
 
 import android.os.Parcel;
 import android.os.Parcelable;

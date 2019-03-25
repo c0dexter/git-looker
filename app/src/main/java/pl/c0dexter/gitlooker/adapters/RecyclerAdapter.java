@@ -1,9 +1,9 @@
 package pl.c0dexter.gitlooker.adapters;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -18,36 +19,38 @@ import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import pl.c0dexter.gitlooker.R;
-import pl.c0dexter.gitlooker.models.RepositoryItem;
+import pl.c0dexter.gitlooker.api.models.GitRepo;
 
-public class RecyclerMainAdapter extends RecyclerView.Adapter<RecyclerMainAdapter.ViewHolder> {
-    // private final String TAG = this.getClass().getSimpleName();
+public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
+
+    private final String TAG = this.getClass().getSimpleName();
+
     private final OnItemClickListener onItemClickListener;
-    private List<RepositoryItem> repositoryItemList;
-    private Context context;
+    private List<GitRepo> repositoriesList = new ArrayList<>();
 
-    public RecyclerMainAdapter(List<RepositoryItem> repositoryItemList, Context context, OnItemClickListener onItemClickListener) {
-        this.repositoryItemList = repositoryItemList;
-        this.context = context;
+    public RecyclerAdapter(List<GitRepo> repositoriesList, OnItemClickListener onItemClickListener) {
+        this.repositoriesList = repositoriesList;
         this.onItemClickListener = onItemClickListener;
     }
 
     @NonNull
     @Override
-    public RecyclerMainAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public RecyclerAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recyclerview_repo_item, parent, false);
         return new ViewHolder(view, onItemClickListener);
 
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerMainAdapter.ViewHolder holder, int position) {
-        RepositoryItem repositoryItem = repositoryItemList.get(position);
+    public void onBindViewHolder(@NonNull RecyclerAdapter.ViewHolder holder, int position) {
+        GitRepo gitRepo = repositoriesList.get(position);
 
-        if (repositoryItem.getOwner().getAvatarUrl() != null
-                && !repositoryItem.getOwner().getAvatarUrl().isEmpty()) {
+        if (gitRepo.getOwner().getAvatarUrl() != null
+                && !gitRepo.getOwner().getAvatarUrl().isEmpty()) {
             Picasso.get()
-                    .load(repositoryItem.getOwner().getAvatarUrl())
+                    .load(gitRepo.getOwner().getAvatarUrl())
+                    .centerCrop()
+                    .fit()
                     .into(holder.userAvatar, new Callback() {
                         @Override
                         public void onSuccess() {
@@ -64,6 +67,7 @@ public class RecyclerMainAdapter extends RecyclerView.Adapter<RecyclerMainAdapte
         } else {
             Picasso.get()
                     .load(R.drawable.github_default_avatar)
+                    .centerCrop()
                     .into(holder.userAvatar, new Callback() {
                         @Override
                         public void onSuccess() {
@@ -79,22 +83,23 @@ public class RecyclerMainAdapter extends RecyclerView.Adapter<RecyclerMainAdapte
                     });
         }
 
-        holder.repositoryName.setText(repositoryItem.getName());
-        holder.userName.setText(repositoryItem.getOwner().getLogin());
-        if (repositoryItem.getScore() != null) {
-            String scoreCounterTextResult = "• " + String.valueOf(repositoryItem.getScore());
-            holder.scoreCounter.setText(scoreCounterTextResult);
+        holder.repositoryName.setText(gitRepo.getName());
+        holder.userName.setText(gitRepo.getOwner().getLogin().trim());
+        if (gitRepo.getLanguage() == null) {
+            holder.frameProgrammingLang.setVisibility(View.GONE);
+        } else {
+            holder.programmingLanguageName.setText(gitRepo.getLanguage());
         }
-        holder.programmingLanguageName.setText(repositoryItem.getLanguage());
-        holder.starCounter.setText(String.valueOf(repositoryItem.getStargazersCount()));
-        holder.observerCounter.setText(String.valueOf(repositoryItem.getWatchersCount()));
-        holder.forkCounter.setText(String.valueOf(repositoryItem.getForks()));
+        holder.starCounter.setText(String.valueOf(gitRepo.getStargazersCount()));
+        holder.observerCounter.setText(String.valueOf(gitRepo.getWatchersCount()));
+        holder.forkCounter.setText(String.valueOf(gitRepo.getForks()));
+
     }
 
 
     @Override
     public int getItemCount() {
-        return repositoryItemList.size();
+        return repositoriesList.size();
     }
 
     public interface OnItemClickListener {
@@ -108,8 +113,6 @@ public class RecyclerMainAdapter extends RecyclerView.Adapter<RecyclerMainAdapte
         TextView userName;
         @BindView(R.id.text_view_github_repo_name)
         TextView repositoryName;
-        @BindView(R.id.text_view_github_user_score_counter)
-        TextView scoreCounter;
         @BindView(R.id.text_view_programing_language_type)
         TextView programmingLanguageName;
         @BindView(R.id.image_view_github_star_icon)
@@ -126,6 +129,8 @@ public class RecyclerMainAdapter extends RecyclerView.Adapter<RecyclerMainAdapte
         TextView forkCounter;
         @BindView(R.id.progress_bar_avatar)
         ProgressBar progressBarAvatar;
+        @BindView(R.id.frame_programming_lang)
+        FrameLayout frameProgrammingLang;
         OnItemClickListener onItemClickListener;
 
         ViewHolder(View itemView, OnItemClickListener onItemClickListener) {
