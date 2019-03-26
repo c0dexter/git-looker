@@ -5,4 +5,6 @@
     <string name="github_star_icon">GitHub star icon</string>
     <string name="github_observer_icon">GitHub observer icon</string>
     <string name="github_fork_icon">GitHub fork icon</string>
+    <string name="search_view_hint">Search a repo by name</string>
+    <string name="toolbar_search_result_title">Search results</string>
 </resources>

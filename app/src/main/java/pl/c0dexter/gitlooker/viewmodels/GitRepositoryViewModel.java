@@ -29,22 +29,18 @@ public class GitRepositoryViewModel extends ViewModel {
     /**
      * Call this method to get a data from the API and set retrieved data into a DataDepository.
      *
-     * @param searchPhrase - search phrase of repository name populated by an user,
-     *                     it will be populated as String parameter for retrieving data from API.
      * @return MutableLiveData list of git repositories
      */
-    public LiveData<List<GitRepo>> getGitRepoList(String searchPhrase) {
+    public LiveData<List<GitRepo>> getGitRepoList() {
         if (gitRepositoryList == null) {
             gitRepositoryList = new MutableLiveData<List<GitRepo>>();
-
-            retrieveDataFromAPI(searchPhrase);
         }
         setDataDepository(gitRepositoryList);
         return gitRepositoryList;
     }
 
 
-    private void retrieveDataFromAPI(String searchQuery) {
+    public void retrieveDataFromAPI(String searchQuery) {
         ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
         Call<Repositories> call = apiInterface.repositories(searchQuery);
         call.enqueue(new Callback<Repositories>() {
