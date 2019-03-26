@@ -24,7 +24,7 @@
                 android:id="@+id/frame_article_image"
                 android:layout_width="0dp"
                 android:layout_height="120dp"
-                android:layout_weight="0.9">
+                android:layout_weight="1">
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/image_view_user_avatar"

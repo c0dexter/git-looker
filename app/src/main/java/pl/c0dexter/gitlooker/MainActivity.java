@@ -8,6 +8,10 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import java.util.List;
 import java.util.Objects;
@@ -39,6 +43,12 @@ public class MainActivity extends AppCompatActivity implements RecyclerAdapter.O
     RecyclerView recyclerView;
     @BindView(R.id.toolbar)
     Toolbar toolbar;
+    @BindView(R.id.frame_layout_progress_bar_container)
+    FrameLayout frameLayoutProgressBarContainer;
+    @BindView(R.id.welcome_picture)
+    ImageView welcomeLogo;
+    @BindView(R.id.progress_bar_recycler_view)
+    ProgressBar progressBarResponseWaiting;
     private SearchView searchView;
     private RecyclerAdapter adapter;
     private GitRepositoryViewModel gitRepositoryViewModel;
@@ -49,10 +59,10 @@ public class MainActivity extends AppCompatActivity implements RecyclerAdapter.O
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-
         setSupportActionBar(toolbar);
 
         if (savedInstanceState != null) {
@@ -62,27 +72,31 @@ public class MainActivity extends AppCompatActivity implements RecyclerAdapter.O
         }
 
         initRecyclerView();
-
-
+        showWelcomeScreen();
 
         gitRepositoryViewModel = ViewModelProviders.of(MainActivity.this)
                 .get(GitRepositoryViewModel.class);
+
         gitRepositoryViewModel.getGitRepoList()
-                .observe(MainActivity.this, new Observer<List<GitRepo>>() {
-                    @Override
-                    public void onChanged(List<GitRepo> gitRepos) {
-                        adapter = new RecyclerAdapter(gitRepos, MainActivity.this);
-                        recyclerView.setAdapter(adapter);
-                        adapter.notifyDataSetChanged();
-                    }
+                .observe(MainActivity.this, gitRepos -> {
+                    adapter = new RecyclerAdapter(gitRepos, MainActivity.this);
+                    recyclerView.setAdapter(adapter);
+                    adapter.notifyDataSetChanged();
                 });
 
+        // Observing a data loading from the API in order to showing or hiding a progress bar
+        gitRepositoryViewModel.getIsUpdating().observe(this, aBoolean -> {
+            if (aBoolean) {
+                showProgressBar();
+            } else {
+                hideProgressBar();
+            }
+        });
     }
 
     private void initRecyclerView() {
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
     }
 
     @Override
@@ -101,9 +115,11 @@ public class MainActivity extends AppCompatActivity implements RecyclerAdapter.O
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_action_bar, menu);
         SearchManager searchManager = (SearchManager) this.getSystemService(Context.SEARCH_SERVICE);
+        setTitleAndSubtitle(toolbarTitleText, toolbarSubtitleText);
 
         MenuItem menuItem = menu.findItem(R.id.action_bar_search);
         searchView = (SearchView) menu.findItem(R.id.action_bar_search).getActionView();
+
         //focus the SearchView
         if (searchPhrase != null && !searchPhrase.isEmpty()) {
             menuItem.expandActionView();
@@ -119,18 +135,24 @@ public class MainActivity extends AppCompatActivity implements RecyclerAdapter.O
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                searchPhrase = query;
-                searchView.setIconified(true);
-                searchView.clearFocus();
+                if(NetworkUtils.isOnline(MainActivity.this)){
+                    searchPhrase = query.trim();
+                    searchView.setIconified(true);
+                    searchView.clearFocus();
+                    // After 1st search, hide a welcome pic
+                    hideWelcomeScreen();
+                    gitRepositoryViewModel.retrieveDataFromAPI(searchPhrase);
+                    toolbar.setTitle(getString(R.string.toolbar_search_result_title));
+                    toolbar.setSubtitle(searchPhrase);
+                    // Collapse the action view
+                    (menu.findItem(R.id.action_bar_search)).collapseActionView();
+                    searchView.onActionViewCollapsed();
+                    // Remove the search phrase, data has been already retrieved
+                    searchPhrase = "";
+                } else {
+                    Toast.makeText(MainActivity.this, "No internet connection. Check your network settings.", Toast.LENGTH_SHORT).show();
+                }
 
-                // notifier about searching repo VISIBILITY = GONE
-                // TODO: add an image view (user notifier) for empty screen
-                gitRepositoryViewModel.retrieveDataFromAPI(searchPhrase);
-                toolbar.setTitle(getString(R.string.toolbar_search_result_title));
-                toolbar.setSubtitle(searchPhrase);
-                // collapse the action view
-                (menu.findItem(R.id.action_bar_search)).collapseActionView();
-                searchView.onActionViewCollapsed();
                 return false;
             }
 
@@ -143,11 +165,40 @@ public class MainActivity extends AppCompatActivity implements RecyclerAdapter.O
         return true;
     }
 
+    private void setTitleAndSubtitle(String toolbarTitle, String toolbarSubtitle){
+        if(toolbarTitle != null && !toolbarTitle.isEmpty()){
+            toolbar.setTitle(toolbarTitle);
+        }
+        if(toolbarSubtitle != null && !toolbarSubtitle.isEmpty()){
+            toolbar.setSubtitle(toolbarSubtitle);
+        }
+    }
+
+    private void showProgressBar() {
+        frameLayoutProgressBarContainer.setVisibility(View.VISIBLE);
+        progressBarResponseWaiting.setVisibility(View.VISIBLE);
+        welcomeLogo.setVisibility(View.GONE);
+    }
+
+    private void hideProgressBar() {
+        frameLayoutProgressBarContainer.setVisibility(View.GONE);
+    }
+
+    private void showWelcomeScreen() {
+        frameLayoutProgressBarContainer.setVisibility(View.VISIBLE);
+        progressBarResponseWaiting.setVisibility(View.GONE);
+        welcomeLogo.setVisibility(View.VISIBLE);
+    }
+
+    private void hideWelcomeScreen() {
+        frameLayoutProgressBarContainer.setVisibility(View.GONE);
+    }
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (searchPhrase != null && !searchView.getQuery().toString().equals("")){
+
+        if (searchPhrase != null && !searchView.getQuery().toString().equals("")) {
             searchPhrase = searchView.getQuery().toString();
         }
         if (toolbar.getTitle() != null && !toolbar.getTitle().equals("")) {
@@ -156,6 +207,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerAdapter.O
         if (toolbar.getSubtitle() != null && !toolbar.getSubtitle().equals("")) {
             toolbarSubtitleText = toolbar.getSubtitle().toString();
         }
+
         outState.putString(SEARCH_PHRASE_KEY, searchPhrase);
         outState.putString(TOOLBAR_TITLE_KEY, toolbarTitleText);
         outState.putString(TOOLBAR_SUBTITLE_KEY, toolbarSubtitleText);

@@ -21,6 +21,7 @@ public class GitRepositoryViewModel extends ViewModel {
 
     // This data will be fetched asynchronously
     private MutableLiveData<List<GitRepo>> gitRepositoryList;
+    private MutableLiveData<Boolean> isUpdating = new MutableLiveData<>();
     private Context context;
 
     public GitRepositoryViewModel() {
@@ -41,6 +42,7 @@ public class GitRepositoryViewModel extends ViewModel {
 
 
     public void retrieveDataFromAPI(String searchQuery) {
+        isUpdating.setValue(true);
         ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
         Call<Repositories> call = apiInterface.repositories(searchQuery);
         call.enqueue(new Callback<Repositories>() {
@@ -49,10 +51,12 @@ public class GitRepositoryViewModel extends ViewModel {
                 if (response.isSuccessful() && response.body() != null) {
                     gitRepositoryList.setValue(response.body().getItems());
                 }
+                isUpdating.postValue(false);
             }
 
             @Override
             public void onFailure(Call<Repositories> call, Throwable t) {
+                isUpdating.postValue(false);
                 Toast.makeText(context.getApplicationContext(),
                         "Something went wrong during collecting a data from the API",
                         Toast.LENGTH_SHORT).show();
@@ -71,4 +75,7 @@ public class GitRepositoryViewModel extends ViewModel {
     }
 
 
+    public LiveData<Boolean> getIsUpdating() {
+        return isUpdating;
+    }
 }
