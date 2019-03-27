@@ -61,14 +61,16 @@ public class GitRepositoryViewModel extends ViewModel {
                     case 400:{
                         Log.i(TAG, "Bad request: " + response.message());
                         Toast.makeText(context.getApplicationContext(),
-                                context.getApplicationContext().getString(R.string.api_on_response_internal_error_msg),
+                                context.getApplicationContext()
+                                        .getString(R.string.api_on_response_internal_error_msg),
                                 Toast.LENGTH_SHORT).show();
                         return;
                     }
                     case 422:{
                         Log.i(TAG, "Unprocessable Entity: " + response.message());
                         Toast.makeText(context.getApplicationContext(),
-                                context.getApplicationContext().getString(R.string.api_on_response_internal_error_msg),
+                                context.getApplicationContext()
+                                        .getString(R.string.api_on_response_internal_error_msg),
                                 Toast.LENGTH_SHORT).show();
                         return;
                     }
@@ -80,7 +82,8 @@ public class GitRepositoryViewModel extends ViewModel {
             public void onFailure(Call<Repositories> call, Throwable t) {
                 isUpdating.postValue(false);
                 Toast.makeText(context.getApplicationContext(),
-                        context.getApplicationContext().getString(R.string.api_on_failure_error_msg),
+                        context.getApplicationContext()
+                                .getString(R.string.api_on_failure_error_msg),
                         Toast.LENGTH_SHORT).show();
             }
         });
