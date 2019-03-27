@@ -54,7 +54,6 @@ public class MainActivity extends AppCompatActivity implements RecyclerAdapter.O
     private String toolbarTitleText;
     private String toolbarSubtitleText;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 

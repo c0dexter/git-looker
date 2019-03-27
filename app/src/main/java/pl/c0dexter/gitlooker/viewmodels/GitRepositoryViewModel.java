@@ -46,7 +46,10 @@ public class GitRepositoryViewModel extends ViewModel {
         isUpdating.setValue(true);
         
         ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
-        Call<Repositories> call = apiInterface.repositories(searchQuery);
+
+        //TODO: check this request URL
+        Call<Repositories> call = apiInterface
+                .repositories(searchQuery,30,1);
         call.enqueue(new Callback<Repositories>() {
             @Override
             public void onResponse(Call<Repositories> call, Response<Repositories> response) {

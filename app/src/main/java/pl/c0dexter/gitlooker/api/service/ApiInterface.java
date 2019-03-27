@@ -11,6 +11,8 @@ public interface ApiInterface {
 
     @GET("repositories")
     Call<Repositories> repositories(
-            @Query(value = "q", encoded = true) String queryPhrase
+            @Query(value = "q", encoded = true) String queryPhrase,
+            @Query("per_page") int amountResultItemsPerPage,
+            @Query("page") int pageNumber
     );
 }

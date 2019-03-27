@@ -40,7 +40,7 @@ public class ApiClient {
             Request.Builder requestBuilder = original.newBuilder().url(newHttpUrl);
             Request request = requestBuilder
                     .addHeader("Accept", "application/vnd.github.preview.text-match+json")
-                    .addHeader("Token", "API_KEY")
+                    .addHeader("Token", API_KEY)
                     .build();
 
             Log.d(TAG, "Request URL:" + requestBuilder.toString());
