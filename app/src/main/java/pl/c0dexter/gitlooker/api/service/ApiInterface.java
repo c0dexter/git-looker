@@ -11,6 +11,6 @@ public interface ApiInterface {
 
     @GET("repositories")
     Call<Repositories> repositories(
-            @Query("q") String queryPhrase
+            @Query(value = "q", encoded = true) String queryPhrase
     );
 }

@@ -40,7 +40,6 @@ public class GitRepositoryViewModel extends ViewModel {
         return gitRepositoryList;
     }
 
-
     public void retrieveDataFromAPI(String searchQuery) {
         isUpdating.setValue(true);
         ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
@@ -73,7 +72,6 @@ public class GitRepositoryViewModel extends ViewModel {
     private void setDataDepository(MutableLiveData<List<GitRepo>> gitRepositoryList) {
         GitDataDepository.getInstance().setDataSet(gitRepositoryList);
     }
-
 
     public LiveData<Boolean> getIsUpdating() {
         return isUpdating;

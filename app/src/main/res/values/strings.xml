@@ -7,4 +7,5 @@
     <string name="github_fork_icon">GitHub fork icon</string>
     <string name="search_view_hint">Search a repo by name</string>
     <string name="toolbar_search_result_title">Search results</string>
+    <string name="missing_internet_connection_msg">No internet connection. Check your network settings.</string>
 </resources>

@@ -13,14 +13,12 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import java.util.List;
 import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -79,9 +77,16 @@ public class MainActivity extends AppCompatActivity implements RecyclerAdapter.O
 
         gitRepositoryViewModel.getGitRepoList()
                 .observe(MainActivity.this, gitRepos -> {
-                    adapter = new RecyclerAdapter(gitRepos, MainActivity.this);
-                    recyclerView.setAdapter(adapter);
-                    adapter.notifyDataSetChanged();
+                    if(!gitRepos.isEmpty()){
+                        adapter = new RecyclerAdapter(gitRepos, MainActivity.this);
+                        recyclerView.setAdapter(adapter);
+                        adapter.notifyDataSetChanged();
+                    }
+                    else {
+                        Toast.makeText(this
+                                , "No result for this search criteria: "
+                                , Toast.LENGTH_SHORT).show();
+                    }
                 });
 
         // Observing a data loading from the API in order to showing or hiding a progress bar
@@ -135,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerAdapter.O
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                if(NetworkUtils.isOnline(MainActivity.this)){
+                if (NetworkUtils.isOnline(MainActivity.this)) {
                     searchPhrase = query.trim();
                     searchView.setIconified(true);
                     searchView.clearFocus();
@@ -150,7 +155,9 @@ public class MainActivity extends AppCompatActivity implements RecyclerAdapter.O
                     // Remove the search phrase, data has been already retrieved
                     searchPhrase = "";
                 } else {
-                    Toast.makeText(MainActivity.this, "No internet connection. Check your network settings.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this
+                            , getString(R.string.missing_internet_connection_msg)
+                            , Toast.LENGTH_SHORT).show();
                 }
 
                 return false;
@@ -162,14 +169,15 @@ public class MainActivity extends AppCompatActivity implements RecyclerAdapter.O
                 return false;
             }
         });
+
         return true;
     }
 
-    private void setTitleAndSubtitle(String toolbarTitle, String toolbarSubtitle){
-        if(toolbarTitle != null && !toolbarTitle.isEmpty()){
+    private void setTitleAndSubtitle(String toolbarTitle, String toolbarSubtitle) {
+        if (toolbarTitle != null && !toolbarTitle.isEmpty()) {
             toolbar.setTitle(toolbarTitle);
         }
-        if(toolbarSubtitle != null && !toolbarSubtitle.isEmpty()){
+        if (toolbarSubtitle != null && !toolbarSubtitle.isEmpty()) {
             toolbar.setSubtitle(toolbarSubtitle);
         }
     }
