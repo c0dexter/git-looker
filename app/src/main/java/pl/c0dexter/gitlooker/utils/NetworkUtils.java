@@ -18,13 +18,14 @@ public final class NetworkUtils {
      * @return TRUE if internet connection exist
      */
     public static boolean isOnline(Context context) {
-        ConnectivityManager cm =
+        ConnectivityManager connectivityManager =
                 (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo netInfo = null;
-        if (cm != null) {
-            netInfo = cm.getActiveNetworkInfo();
+        if (connectivityManager == null) {
+            return false;
+        } else {
+            final NetworkInfo netInfo = connectivityManager.getActiveNetworkInfo();
+            return netInfo != null && netInfo.isConnectedOrConnecting();
         }
-        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
     /**
@@ -35,12 +36,14 @@ public final class NetworkUtils {
      */
     public static void openArticleInBrowser(Context context, GitRepo gitRepo) {
         if (isOnline(context)) {
-            String url = gitRepo.getHtmlUrl();
-            Intent i = new Intent(Intent.ACTION_VIEW);
-            i.setData(Uri.parse(url));
-            context.startActivity(i);
+            final String url = gitRepo.getHtmlUrl();
+            final Uri uriData = Uri.parse(url);
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(uriData);
+            context.startActivity(intent);
         } else {
-            Toast.makeText(context, "Network connection is missing", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Network connection is missing",
+                    Toast.LENGTH_SHORT).show();
         }
     }
 }

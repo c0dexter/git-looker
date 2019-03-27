@@ -32,10 +32,10 @@ import pl.c0dexter.gitlooker.viewmodels.GitRepositoryViewModel;
 
 public class MainActivity extends AppCompatActivity implements RecyclerAdapter.OnItemClickListener {
 
+    private final String TAG = this.getClass().getSimpleName();
     private static final String SEARCH_PHRASE_KEY = "search_key";
     private static final String TOOLBAR_TITLE_KEY = "title_key";
     private static final String TOOLBAR_SUBTITLE_KEY = "subtitle_key";
-    private final String TAG = this.getClass().getSimpleName();
 
     @BindView(R.id.github_repos_recycler_view)
     RecyclerView recyclerView;
@@ -83,9 +83,9 @@ public class MainActivity extends AppCompatActivity implements RecyclerAdapter.O
                         adapter.notifyDataSetChanged();
                     }
                     else {
-                        Toast.makeText(this
-                                , "No result for this search criteria: "
-                                , Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this,
+                                getString(R.string.search_no_result_msg),
+                                Toast.LENGTH_SHORT).show();
                     }
                 });
 
@@ -144,14 +144,17 @@ public class MainActivity extends AppCompatActivity implements RecyclerAdapter.O
                     searchPhrase = query.trim();
                     searchView.setIconified(true);
                     searchView.clearFocus();
+
                     // After 1st search, hide a welcome pic
                     hideWelcomeScreen();
                     gitRepositoryViewModel.retrieveDataFromAPI(searchPhrase);
                     toolbar.setTitle(getString(R.string.toolbar_search_result_title));
                     toolbar.setSubtitle(searchPhrase);
+
                     // Collapse the action view
                     (menu.findItem(R.id.action_bar_search)).collapseActionView();
                     searchView.onActionViewCollapsed();
+
                     // Remove the search phrase, data has been already retrieved
                     searchPhrase = "";
                 } else {

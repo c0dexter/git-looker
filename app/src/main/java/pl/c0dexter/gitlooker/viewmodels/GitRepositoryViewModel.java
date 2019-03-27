@@ -1,6 +1,7 @@
 package pl.c0dexter.gitlooker.viewmodels;
 
 import android.content.Context;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.List;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
+import pl.c0dexter.gitlooker.R;
 import pl.c0dexter.gitlooker.api.models.GitRepo;
 import pl.c0dexter.gitlooker.api.models.Repositories;
 import pl.c0dexter.gitlooker.api.service.ApiClient;
@@ -19,7 +21,7 @@ import retrofit2.Response;
 
 public class GitRepositoryViewModel extends ViewModel {
 
-    // This data will be fetched asynchronously
+    private final String TAG = this.getClass().getSimpleName();
     private MutableLiveData<List<GitRepo>> gitRepositoryList;
     private MutableLiveData<Boolean> isUpdating = new MutableLiveData<>();
     private Context context;
@@ -42,25 +44,54 @@ public class GitRepositoryViewModel extends ViewModel {
 
     public void retrieveDataFromAPI(String searchQuery) {
         isUpdating.setValue(true);
+        
         ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
         Call<Repositories> call = apiInterface.repositories(searchQuery);
         call.enqueue(new Callback<Repositories>() {
             @Override
             public void onResponse(Call<Repositories> call, Response<Repositories> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    gitRepositoryList.setValue(response.body().getItems());
+                switch (response.code()){
+                    case 200:{
+                        collectDataFromResponse(response);
+                        Log.i(TAG, "API response OK, code: "
+                                + response.code()
+                                + ". Total count: " + response.body().getTotalCount());
+                        return;
+                    }
+                    case 400:{
+                        Log.i(TAG, "Bad request: " + response.message());
+                        Toast.makeText(context.getApplicationContext(),
+                                context.getApplicationContext().getString(R.string.api_on_response_internal_error_msg),
+                                Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    case 422:{
+                        Log.i(TAG, "Unprocessable Entity: " + response.message());
+                        Toast.makeText(context.getApplicationContext(),
+                                context.getApplicationContext().getString(R.string.api_on_response_internal_error_msg),
+                                Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    default:
                 }
-                isUpdating.postValue(false);
             }
 
             @Override
             public void onFailure(Call<Repositories> call, Throwable t) {
                 isUpdating.postValue(false);
                 Toast.makeText(context.getApplicationContext(),
-                        "Something went wrong during collecting a data from the API",
+                        context.getApplicationContext().getString(R.string.api_on_failure_error_msg),
                         Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+
+    private void collectDataFromResponse(Response<Repositories> response){
+        if (response.isSuccessful() && response.body() != null) {
+            gitRepositoryList.setValue(response.body().getItems());
+        }
+        isUpdating.postValue(false);
     }
 
     /**
