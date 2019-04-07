@@ -4,7 +4,9 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -25,6 +27,7 @@ public class GitRepositoryViewModel extends ViewModel {
     private MutableLiveData<List<GitRepo>> gitRepositoryList;
     private MutableLiveData<Boolean> isUpdating = new MutableLiveData<>();
     private Context context;
+    private int totalCountRepos;
 
     public GitRepositoryViewModel() {
     }
@@ -42,39 +45,36 @@ public class GitRepositoryViewModel extends ViewModel {
         return gitRepositoryList;
     }
 
-    public void retrieveDataFromAPI(String searchQuery) {
+    public void retrieveDataFromAPI(String searchQuery, int pageNumber, int itemsPerPage) {
         isUpdating.setValue(true);
-        
+
         ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
 
-        //TODO: check this request URL
+        // Preparing URL address
+        Map<String, Object> map = new HashMap<>();
+        map.put("q", searchQuery + "+in:name");
+        map.put("per_page", itemsPerPage); // TODO: in the future get this number from SharedPref
+        map.put("page", pageNumber);
+
         Call<Repositories> call = apiInterface
-                .repositories(searchQuery,30,1);
+                .repositories(map);
         call.enqueue(new Callback<Repositories>() {
             @Override
             public void onResponse(Call<Repositories> call, Response<Repositories> response) {
-                switch (response.code()){
-                    case 200:{
+                switch (response.code()) {
+                    case 200: {
                         collectDataFromResponse(response);
                         Log.i(TAG, "API response OK, code: "
                                 + response.code()
                                 + ". Total count: " + response.body().getTotalCount());
                         return;
                     }
-                    case 400:{
+                    case 400: {
                         Log.i(TAG, "Bad request: " + response.message());
-                        Toast.makeText(context.getApplicationContext(),
-                                context.getApplicationContext()
-                                        .getString(R.string.api_on_response_internal_error_msg),
-                                Toast.LENGTH_SHORT).show();
-                        return;
+
                     }
-                    case 422:{
+                    case 422: {
                         Log.i(TAG, "Unprocessable Entity: " + response.message());
-                        Toast.makeText(context.getApplicationContext(),
-                                context.getApplicationContext()
-                                        .getString(R.string.api_on_response_internal_error_msg),
-                                Toast.LENGTH_SHORT).show();
                         return;
                     }
                     default:
@@ -92,13 +92,14 @@ public class GitRepositoryViewModel extends ViewModel {
         });
     }
 
-
-    private void collectDataFromResponse(Response<Repositories> response){
+    private void collectDataFromResponse(Response<Repositories> response) {
         if (response.isSuccessful() && response.body() != null) {
             gitRepositoryList.setValue(response.body().getItems());
+            totalCountRepos = response.body().getTotalCount();
         }
         isUpdating.postValue(false);
     }
+
 
     /**
      * Method for passing a MutableLiveData list of GitRepo objects
@@ -112,5 +113,9 @@ public class GitRepositoryViewModel extends ViewModel {
 
     public LiveData<Boolean> getIsUpdating() {
         return isUpdating;
+    }
+
+    public int getTotalCountRepos() {
+        return totalCountRepos;
     }
 }

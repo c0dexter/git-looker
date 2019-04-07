@@ -27,17 +27,18 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
     private final OnItemClickListener onItemClickListener;
     private List<GitRepo> repositoriesList = new ArrayList<>();
 
-
-    public RecyclerAdapter(List<GitRepo> repositoriesList, OnItemClickListener onItemClickListener) {
+    public RecyclerAdapter(
+            List<GitRepo> repositoriesList,
+            OnItemClickListener onItemClickListener) {
         this.repositoriesList = repositoriesList;
         this.onItemClickListener = onItemClickListener;
     }
 
-
     @NonNull
     @Override
     public RecyclerAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recyclerview_repo_item, parent, false);
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.recyclerview_repo_item, parent, false);
         return new ViewHolder(view, onItemClickListener);
 
     }
@@ -97,7 +98,6 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
 
     }
 
-
     @Override
     public int getItemCount() {
         return repositoriesList.size();
@@ -107,7 +107,6 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
     public interface OnItemClickListener {
         void onItemClick(View view, int position);
     }
-
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         @BindView(R.id.image_view_user_avatar)
