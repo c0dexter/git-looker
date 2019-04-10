@@ -43,6 +43,13 @@ public class MainActivity extends AppCompatActivity implements RecyclerAdapter.O
     private int totalPages;
     private int totalItems;
     private boolean isLoading;
+    private LinearLayoutManager linearLayoutManager;
+    private SearchView searchView;
+    private RecyclerAdapter adapter;
+    private GitRepositoryViewModel gitRepositoryViewModel;
+    private String searchPhrase;
+    private String toolbarTitleText;
+    private String toolbarSubtitleText;
 
     @BindView(R.id.github_repos_recycler_view)
     RecyclerView recyclerView;
@@ -54,12 +61,6 @@ public class MainActivity extends AppCompatActivity implements RecyclerAdapter.O
     ImageView welcomeLogo;
     @BindView(R.id.progress_bar_recycler_view)
     ProgressBar progressBarResponseWaiting;
-    private SearchView searchView;
-    private RecyclerAdapter adapter;
-    private GitRepositoryViewModel gitRepositoryViewModel;
-    private String searchPhrase;
-    private String toolbarTitleText;
-    private String toolbarSubtitleText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerAdapter.O
             } else {
                 isLoading = false;
                 hideProgressBar();
-                totalItems = gitRepositoryViewModel.getTotalCountRepos();
+                calculateTotalPages();
             }
         });
 
@@ -112,34 +113,35 @@ public class MainActivity extends AppCompatActivity implements RecyclerAdapter.O
     private void initRecyclerView() {
         itemsPerPage = 10; // TODO: In the future get this value from SharedPref screen?
         recyclerView.setHasFixedSize(true);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
 
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-
-                int visibleItemCount = linearLayoutManager.getChildCount();
-                int totalItemCount = linearLayoutManager.getItemCount();
-                int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
-
-                if (!isLoading && currentPageNumber <= totalPages) {
-                    if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount //TODO: check this condition during 1st run
-                            && firstVisibleItemPosition >= 0
-                            && totalItemCount >= itemsPerPage) {
-                        loadMoreItems();
-                    }
-                }
+                loadMoreItemsFromNextPage();
             }
         });
     }
 
-    private void loadMoreItems() {
-        gitRepositoryViewModel.retrieveDataFromAPI(
-                toolbar.getSubtitle().toString(),
-                ++currentPageNumber,
-                itemsPerPage);
+    private void loadMoreItemsFromNextPage() {
+        int visibleItemCount = linearLayoutManager.getChildCount();
+        int totalItemCount = linearLayoutManager.getItemCount();
+        int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
+
+        if (!isLoading && currentPageNumber <= totalPages) {
+            if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount
+                    && firstVisibleItemPosition >= 0
+                    && totalItemCount >= itemsPerPage) {
+
+                // Display next page, so increment currentPageNumber before collect data
+                retrieveDataFromApi(
+                        toolbar.getSubtitle().toString(),
+                        ++currentPageNumber,
+                        itemsPerPage);
+            }
+        }
     }
 
     @Override
@@ -149,6 +151,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerAdapter.O
                 .getGitRepos()
                 .getValue())
                 .get(position);
+
         NetworkUtils.openArticleInBrowser(this, gitRepo);
         Log.d(TAG, "Clicked repo on the #" + position + ", repo name: " + gitRepo.getName());
     }
@@ -163,7 +166,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerAdapter.O
         MenuItem menuItem = menu.findItem(R.id.action_bar_search);
         searchView = (SearchView) menu.findItem(R.id.action_bar_search).getActionView();
 
-        // focus the SearchView
+        // focus on the SearchView
         if (searchPhrase != null && !searchPhrase.isEmpty()) {
             menuItem.expandActionView();
             searchView.onActionViewExpanded();
@@ -179,20 +182,18 @@ public class MainActivity extends AppCompatActivity implements RecyclerAdapter.O
             @Override
             public boolean onQueryTextSubmit(String query) {
                 if (NetworkUtils.isOnline(MainActivity.this)) {
+                    // After using a new search phrase set currentPageNumber to the 1st page
                     currentPageNumber = 1;
+
                     searchPhrase = query.trim();
                     searchView.setIconified(true);
                     searchView.clearFocus();
 
-                    // After 1st search, hide a welcome pic
                     hideWelcomeScreen();
-                    gitRepositoryViewModel.retrieveDataFromAPI(
-                            searchPhrase,
-                            currentPageNumber,
-                            itemsPerPage);
-                    calculateTotalPages();
-                    toolbar.setTitle(getString(R.string.toolbar_search_result_title));
-                    toolbar.setSubtitle(searchPhrase);
+                    retrieveDataFromApi(searchPhrase, currentPageNumber, itemsPerPage);
+                    setTitleAndSubtitle(
+                            getString(R.string.toolbar_search_result_title),
+                            searchPhrase);
 
                     // Collapse the action view
                     (menu.findItem(R.id.action_bar_search)).collapseActionView();
@@ -209,7 +210,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerAdapter.O
                 return false;
             }
 
-            // Do this only for "live search", it mean during writing action
+            // Do this only for "live search", leave empty if not using this kind of search
             @Override
             public boolean onQueryTextChange(String newText) {
                 return false;
@@ -217,15 +218,6 @@ public class MainActivity extends AppCompatActivity implements RecyclerAdapter.O
         });
 
         return true;
-    }
-
-    private void setTitleAndSubtitle(String toolbarTitle, String toolbarSubtitle) {
-        if (toolbarTitle != null && !toolbarTitle.isEmpty()) {
-            toolbar.setTitle(toolbarTitle);
-        }
-        if (toolbarSubtitle != null && !toolbarSubtitle.isEmpty()) {
-            toolbar.setSubtitle(toolbarSubtitle);
-        }
     }
 
     private void showProgressBar() {
@@ -248,8 +240,25 @@ public class MainActivity extends AppCompatActivity implements RecyclerAdapter.O
         frameLayoutProgressBarContainer.setVisibility(View.GONE);
     }
 
-    private int calculateTotalPages() {
-        return totalPages = totalItems / itemsPerPage;
+    private void calculateTotalPages() {
+        totalItems = gitRepositoryViewModel.getTotalCountRepos();
+        totalPages = totalItems / itemsPerPage;
+    }
+
+    private void setTitleAndSubtitle(String toolbarTitle, String toolbarSubtitle) {
+        if (toolbarTitle != null && !toolbarTitle.isEmpty()) {
+            toolbar.setTitle(toolbarTitle);
+        }
+        if (toolbarSubtitle != null && !toolbarSubtitle.isEmpty()) {
+            toolbar.setSubtitle(toolbarSubtitle);
+        }
+    }
+
+    private void retrieveDataFromApi(String searchPhrase, int currentPageNumber, int itemsPerPage){
+        gitRepositoryViewModel.retrieveDataFromAPI(
+                searchPhrase,
+                currentPageNumber,
+                itemsPerPage);
     }
 
     @Override

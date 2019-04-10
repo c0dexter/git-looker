@@ -53,7 +53,7 @@ public class GitRepositoryViewModel extends ViewModel {
         // Preparing URL address
         Map<String, Object> map = new HashMap<>();
         map.put("q", searchQuery + "+in:name");
-        map.put("per_page", itemsPerPage); // TODO: in the future get this number from SharedPref
+        map.put("per_page", itemsPerPage);
         map.put("page", pageNumber);
 
         Call<Repositories> call = apiInterface
