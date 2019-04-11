@@ -41,7 +41,6 @@ public class MainActivity extends AppCompatActivity implements RecyclerAdapter.O
     private int currentPageNumber;
     private int itemsPerPage;
     private int totalPages;
-    private int totalItems;
     private boolean isLoading;
     private LinearLayoutManager linearLayoutManager;
     private SearchView searchView;
@@ -64,20 +63,35 @@ public class MainActivity extends AppCompatActivity implements RecyclerAdapter.O
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
 
-        if (savedInstanceState != null) {
-            searchPhrase = savedInstanceState.getString(SEARCH_PHRASE_KEY);
-            toolbarSubtitleText = savedInstanceState.getString(TOOLBAR_SUBTITLE_KEY);
-            toolbarTitleText = savedInstanceState.getString(TOOLBAR_TITLE_KEY);
-            currentPageNumber = savedInstanceState.getInt(CURRENT_PAGE__KEY);
-            totalPages = savedInstanceState.getInt(TOTAL_PAGES__KEY);
-        }
+        readInstanceState(savedInstanceState);
+        showWelcomeScreen();
 
+        loadDataForDisplaying();
+        showOrHideSearchingProgressBar();
+
+        initRecyclerView();
+    }
+
+    private void showOrHideSearchingProgressBar() {
+        // Observing a data loading from the API in order to showing or hiding a progress bar
+        gitRepositoryViewModel.getIsUpdating().observe(this, aBoolean -> {
+            if (aBoolean) {
+                isLoading = true;
+                showProgressBar();
+            } else {
+                isLoading = false;
+                hideProgressBar();
+                calculateTotalPages();
+            }
+        });
+    }
+
+    private void loadDataForDisplaying() {
         gitRepositoryViewModel = ViewModelProviders.of(MainActivity.this)
                 .get(GitRepositoryViewModel.class);
 
@@ -93,25 +107,20 @@ public class MainActivity extends AppCompatActivity implements RecyclerAdapter.O
                                 Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
 
-        // Observing a data loading from the API in order to showing or hiding a progress bar
-        gitRepositoryViewModel.getIsUpdating().observe(this, aBoolean -> {
-            if (aBoolean) {
-                isLoading = true;
-                showProgressBar();
-            } else {
-                isLoading = false;
-                hideProgressBar();
-                calculateTotalPages();
-            }
-        });
-
-        initRecyclerView();
-        showWelcomeScreen();
+    private void readInstanceState(Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            searchPhrase = savedInstanceState.getString(SEARCH_PHRASE_KEY);
+            toolbarSubtitleText = savedInstanceState.getString(TOOLBAR_SUBTITLE_KEY);
+            toolbarTitleText = savedInstanceState.getString(TOOLBAR_TITLE_KEY);
+            currentPageNumber = savedInstanceState.getInt(CURRENT_PAGE__KEY);
+            totalPages = savedInstanceState.getInt(TOTAL_PAGES__KEY);
+        }
     }
 
     private void initRecyclerView() {
-        itemsPerPage = 10; // TODO: In the future get this value from SharedPref screen?
+        itemsPerPage = 10; // TODO: In the future get this value from SharedPref screen
         recyclerView.setHasFixedSize(true);
         linearLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(linearLayoutManager);
@@ -241,7 +250,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerAdapter.O
     }
 
     private void calculateTotalPages() {
-        totalItems = gitRepositoryViewModel.getTotalCountRepos();
+        int totalItems = gitRepositoryViewModel.getTotalCountRepos();
         totalPages = totalItems / itemsPerPage;
     }
 
@@ -254,7 +263,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerAdapter.O
         }
     }
 
-    private void retrieveDataFromApi(String searchPhrase, int currentPageNumber, int itemsPerPage){
+    private void retrieveDataFromApi(String searchPhrase, int currentPageNumber, int itemsPerPage) {
         gitRepositoryViewModel.retrieveDataFromAPI(
                 searchPhrase,
                 currentPageNumber,
